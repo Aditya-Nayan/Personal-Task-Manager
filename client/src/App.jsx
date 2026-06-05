@@ -13,6 +13,13 @@ function App() {
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Edit state
+  const [editingTaskId, setEditingTaskId] = useState(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editDueDate, setEditDueDate] = useState('');
+  const [editError, setEditError] = useState('');
+
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -96,6 +103,39 @@ function App() {
     }
   };
 
+  const handleEditStart = (task) => {
+    setEditingTaskId(task.id);
+    setEditTitle(task.title);
+    setEditDescription(task.description || '');
+    setEditDueDate(task.due_date || '');
+    setEditError('');
+  };
+
+  const handleEditCancel = () => {
+    setEditingTaskId(null);
+  };
+
+  const handleEditSave = async (id) => {
+    if (!editTitle.trim()) {
+      setEditError('Title is required');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editTitle, description: editDescription, due_date: editDueDate })
+      });
+      if (!res.ok) throw new Error('Failed to update task');
+      const data = await res.json();
+      setTasks(tasks.map(t => t.id === id ? data.task : t));
+      setEditingTaskId(null);
+    } catch (err) {
+      console.error(err);
+      setEditError(err.message);
+    }
+  };
+
   return (
     <div className="container">
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
@@ -165,30 +205,62 @@ function App() {
           <div className="task-list">
             {tasks.map(task => (
               <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''}`}>
-                <div className="task-header">
-                  <div className="flex-row">
+                {editingTaskId === task.id ? (
+                  <div className="flex-col gap-sm">
                     <input 
-                      type="checkbox" 
-                      className="checkbox"
-                      checked={task.completed === 1}
-                      onChange={() => handleToggleComplete(task.id, task.completed)}
+                      type="text" 
+                      className="form-control" 
+                      value={editTitle}
+                      onChange={e => setEditTitle(e.target.value)}
+                      placeholder="Task Title *"
                     />
-                    <div className="task-title">{task.title}</div>
+                    {editError && <div className="form-error">{editError}</div>}
+                    <textarea 
+                      className="form-control" 
+                      value={editDescription}
+                      onChange={e => setEditDescription(e.target.value)}
+                      placeholder="Description"
+                      rows="2"
+                    />
+                    <input 
+                      type="date" 
+                      className="form-control" 
+                      value={editDueDate}
+                      onChange={e => setEditDueDate(e.target.value)}
+                    />
+                    <div className="flex-row" style={{ marginTop: 'var(--spacing-xs)' }}>
+                      <button className="btn-primary" onClick={() => handleEditSave(task.id)}>Save</button>
+                      <button className="btn-ghost" onClick={handleEditCancel}>Cancel</button>
+                    </div>
                   </div>
-                  <div className="task-actions">
-                    <button className="btn-icon">
-                      <Edit2 size={16} />
-                    </button>
-                    <button className="btn-icon delete" onClick={() => handleDelete(task.id)}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-                {task.description && <div className="task-desc">{task.description}</div>}
-                <div className="task-meta">
-                  {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
-                  <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
-                </div>
+                ) : (
+                  <>
+                    <div className="task-header">
+                      <div className="flex-row">
+                        <input 
+                          type="checkbox" 
+                          className="checkbox"
+                          checked={task.completed === 1}
+                          onChange={() => handleToggleComplete(task.id, task.completed)}
+                        />
+                        <div className="task-title">{task.title}</div>
+                      </div>
+                      <div className="task-actions">
+                        <button className="btn-icon" onClick={() => handleEditStart(task)}>
+                          <Edit2 size={16} />
+                        </button>
+                        <button className="btn-icon delete" onClick={() => handleDelete(task.id)}>
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    {task.description && <div className="task-desc">{task.description}</div>}
+                    <div className="task-meta">
+                      {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
+                      <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
           </div>
