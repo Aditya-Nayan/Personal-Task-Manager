@@ -8,9 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors({
-  origin: ['https://comforting-dodol-e9f2df.netlify.app', 'http://localhost:5175', 'http://localhost:5173']
-}));
+app.use(cors());
 app.use(express.json());
 
 // Database setup
