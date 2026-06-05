@@ -32,7 +32,7 @@ db.exec(`
 // Endpoints
 app.get('/api/tasks', (req, res) => {
   try {
-    const tasks = db.prepare('SELECT * FROM tasks ORDER BY created_at DESC').all();
+    const tasks = db.prepare('SELECT * FROM tasks ORDER BY order_index ASC, created_at DESC').all();
     res.json({ tasks });
   } catch (err) {
     console.error(err);

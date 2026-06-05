@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Edit2, ClipboardList } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableTask } from './components/SortableTask';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -23,6 +38,13 @@ function App() {
   // Filter state
   const [filter, setFilter] = useState('All'); // 'All', 'Active', 'Completed'
   const [searchQuery, setSearchQuery] = useState('');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     fetchTasks();
@@ -104,6 +126,28 @@ function App() {
     } catch (err) {
       console.error(err);
       alert('Failed to delete task');
+    }
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    
+    if (active.id !== over.id) {
+      setTasks((items) => {
+        const oldIndex = items.findIndex(i => i.id === active.id);
+        const newIndex = items.findIndex(i => i.id === over.id);
+        const newArray = arrayMove(items, oldIndex, newIndex);
+        
+        // Persist to server
+        const orderedIds = newArray.map(item => item.id);
+        fetch('/api/tasks/reorder', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderedIds })
+        }).catch(err => console.error('Failed to reorder tasks:', err));
+
+        return newArray;
+      });
     }
   };
 
@@ -272,71 +316,37 @@ function App() {
 
         {!loading && !error && filteredTasks.length > 0 && (
           <div className="task-list">
-            {filteredTasks.map(task => {
-              const overdue = isOverdue(task);
-              return (
-              <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}`}>
-                {editingTaskId === task.id ? (
-                  <div className="flex-col gap-sm">
-                    <input 
-                      type="text" 
-                      className="form-control" 
-                      value={editTitle}
-                      onChange={e => setEditTitle(e.target.value)}
-                      placeholder="Task Title *"
-                    />
-                    {editError && <div className="form-error">{editError}</div>}
-                    <textarea 
-                      className="form-control" 
-                      value={editDescription}
-                      onChange={e => setEditDescription(e.target.value)}
-                      placeholder="Description"
-                      rows="2"
-                    />
-                    <input 
-                      type="date" 
-                      className="form-control" 
-                      value={editDueDate}
-                      onChange={e => setEditDueDate(e.target.value)}
-                    />
-                    <div className="flex-row" style={{ marginTop: 'var(--spacing-xs)' }}>
-                      <button className="btn-primary" onClick={() => handleEditSave(task.id)}>Save</button>
-                      <button className="btn-ghost" onClick={handleEditCancel}>Cancel</button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="task-header">
-                      <div className="flex-row">
-                        <input 
-                          type="checkbox" 
-                          className="checkbox"
-                          checked={task.completed === 1}
-                          onChange={() => handleToggleComplete(task.id, task.completed)}
-                        />
-                        <div className="task-title">
-                          {task.title}
-                          {overdue && <span className="badge-overdue">OVERDUE</span>}
-                        </div>
-                      </div>
-                      <div className="task-actions">
-                        <button className="btn-icon" onClick={() => handleEditStart(task)}>
-                          <Edit2 size={16} />
-                        </button>
-                        <button className="btn-icon delete" onClick={() => handleDelete(task.id)}>
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                    {task.description && <div className="task-desc">{task.description}</div>}
-                    <div className="task-meta">
-                      {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
-                      <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            )})}
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext 
+                items={filteredTasks.map(t => t.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {filteredTasks.map(task => (
+                  <SortableTask 
+                    key={task.id}
+                    task={task}
+                    overdue={isOverdue(task)}
+                    editingTaskId={editingTaskId}
+                    editTitle={editTitle}
+                    setEditTitle={setEditTitle}
+                    editDescription={editDescription}
+                    setEditDescription={setEditDescription}
+                    editDueDate={editDueDate}
+                    setEditDueDate={setEditDueDate}
+                    editError={editError}
+                    handleEditSave={handleEditSave}
+                    handleEditCancel={handleEditCancel}
+                    handleToggleComplete={handleToggleComplete}
+                    handleEditStart={handleEditStart}
+                    handleDelete={handleDelete}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         )}
       </main>
