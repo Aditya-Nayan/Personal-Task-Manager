@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Edit2 } from 'lucide-react';
+import { Trash2, Edit2, ClipboardList } from 'lucide-react';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -152,6 +152,21 @@ function App() {
   const activeCount = tasks.filter(t => t.completed === 0 && t.title.toLowerCase().includes(searchQuery.toLowerCase())).length;
   const completedCount = tasks.filter(t => t.completed === 1 && t.title.toLowerCase().includes(searchQuery.toLowerCase())).length;
 
+  const isOverdue = (task) => {
+    if (task.completed === 1 || !task.due_date) return false;
+    const due = new Date(task.due_date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return due < today;
+  };
+
+  const getEmptyStateMessage = () => {
+    if (tasks.length === 0) return "Nothing here yet. Add your first task above.";
+    if (filter === 'Active') return "No active tasks. You're all caught up!";
+    if (filter === 'Completed') return "No completed tasks yet.";
+    return "No tasks found matching your search.";
+  };
+
   return (
     <div className="container">
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
@@ -249,13 +264,18 @@ function App() {
         {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
         
         {!loading && !error && filteredTasks.length === 0 && (
-          <p style={{ color: 'var(--text-secondary)' }}>No tasks found.</p>
+          <div className="empty-state">
+            <ClipboardList className="empty-icon" size={48} />
+            <p>{getEmptyStateMessage()}</p>
+          </div>
         )}
 
         {!loading && !error && filteredTasks.length > 0 && (
           <div className="task-list">
-            {filteredTasks.map(task => (
-              <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''}`}>
+            {filteredTasks.map(task => {
+              const overdue = isOverdue(task);
+              return (
+              <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}`}>
                 {editingTaskId === task.id ? (
                   <div className="flex-col gap-sm">
                     <input 
@@ -294,7 +314,10 @@ function App() {
                           checked={task.completed === 1}
                           onChange={() => handleToggleComplete(task.id, task.completed)}
                         />
-                        <div className="task-title">{task.title}</div>
+                        <div className="task-title">
+                          {task.title}
+                          {overdue && <span className="badge-overdue">OVERDUE</span>}
+                        </div>
                       </div>
                       <div className="task-actions">
                         <button className="btn-icon" onClick={() => handleEditStart(task)}>
@@ -313,7 +336,7 @@ function App() {
                   </>
                 )}
               </div>
-            ))}
+            )})}
           </div>
         )}
       </main>
