@@ -15,6 +15,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { SortableTask } from './components/SortableTask';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace(/\/$/, '') || '';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -53,7 +54,7 @@ function App() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks`);
+      const res = await fetch(`${API_BASE_URL}/api/tasks`);
       if (!res.ok) throw new Error('Failed to fetch tasks');
       const data = await res.json();
       setTasks(data.tasks);
@@ -76,7 +77,7 @@ function App() {
     try {
       setIsSubmitting(true);
       setFormError('');
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks`, {
+      const res = await fetch(`${API_BASE_URL}/api/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description, due_date: dueDate })
@@ -101,7 +102,7 @@ function App() {
 
   const handleToggleComplete = async (id, currentStatus) => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed: currentStatus === 1 ? 0 : 1 })
@@ -120,7 +121,7 @@ function App() {
       return;
     }
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/api/tasks/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete task');
       setTasks(tasks.filter(t => t.id !== id));
     } catch (err) {
@@ -140,7 +141,7 @@ function App() {
         
         // Persist to server
         const orderedIds = newArray.map(item => item.id);
-        fetch(`${import.meta.env.VITE_API_URL}/api/tasks/reorder`, {
+        fetch(`${API_BASE_URL}/api/tasks/reorder`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderedIds })
@@ -169,7 +170,7 @@ function App() {
       return;
     }
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: editTitle, description: editDescription, due_date: editDueDate })
