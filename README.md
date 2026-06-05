@@ -3,9 +3,13 @@
 **Exercise chosen:** Exercise 1 — Personal Task Manager  
 A full-stack, single-user task management application featuring a "Refined Brutalist" aesthetic. It provides essential task functionalities such as creating, reading, updating, deleting, and drag-and-drop reordering, with SQLite persistence on the backend.
 
-### Live Demo
+### Local Dev
 - Frontend: [http://localhost:5174](http://localhost:5173) (Local Dev)
 - Backend API: [http://localhost:3001/api/tasks](http://localhost:3001/api/tasks) (Local Dev)
+
+### Live Application (After Deployment)
+- Frontend:
+- Backend:
 
 ### Tech Stack
 - **React (Vite):** Fast, modern frontend framework and bundler for a snappy UI.
@@ -38,7 +42,7 @@ Ensure you have Node.js installed (v16+ recommended).
    npm install
    npm run dev
    ```
-   *The frontend will run on http://localhost:5173 (or another port output by Vite).*
+   *The frontend will run on http://localhost:5174.*
 
 ### API Documentation
 
