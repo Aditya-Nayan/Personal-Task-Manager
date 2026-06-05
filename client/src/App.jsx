@@ -22,6 +22,7 @@ function App() {
 
   // Filter state
   const [filter, setFilter] = useState('All'); // 'All', 'Active', 'Completed'
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchTasks();
@@ -140,13 +141,16 @@ function App() {
   };
 
   const filteredTasks = tasks.filter(task => {
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
     if (filter === 'Active') return task.completed === 0;
     if (filter === 'Completed') return task.completed === 1;
     return true;
   });
 
-  const activeCount = tasks.filter(t => t.completed === 0).length;
-  const completedCount = tasks.filter(t => t.completed === 1).length;
+  const activeCount = tasks.filter(t => t.completed === 0 && t.title.toLowerCase().includes(searchQuery.toLowerCase())).length;
+  const completedCount = tasks.filter(t => t.completed === 1 && t.title.toLowerCase().includes(searchQuery.toLowerCase())).length;
 
   return (
     <div className="container">
@@ -206,27 +210,36 @@ function App() {
         </div>
 
         <div className="filter-bar">
-          <div className="filter-buttons">
-            <button 
-              className={`btn-filter ${filter === 'All' ? 'active' : ''}`}
-              onClick={() => setFilter('All')}
-            >
-              All
-            </button>
-            <button 
-              className={`btn-filter ${filter === 'Active' ? 'active' : ''}`}
-              onClick={() => setFilter('Active')}
-            >
-              Active
-            </button>
-            <button 
-              className={`btn-filter ${filter === 'Completed' ? 'active' : ''}`}
-              onClick={() => setFilter('Completed')}
-            >
-              Completed
-            </button>
+          <div className="flex-col gap-sm">
+            <input 
+              type="text" 
+              className="form-control search-input" 
+              placeholder="Search tasks..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="filter-buttons">
+              <button 
+                className={`btn-filter ${filter === 'All' ? 'active' : ''}`}
+                onClick={() => setFilter('All')}
+              >
+                All
+              </button>
+              <button 
+                className={`btn-filter ${filter === 'Active' ? 'active' : ''}`}
+                onClick={() => setFilter('Active')}
+              >
+                Active
+              </button>
+              <button 
+                className={`btn-filter ${filter === 'Completed' ? 'active' : ''}`}
+                onClick={() => setFilter('Completed')}
+              >
+                Completed
+              </button>
+            </div>
           </div>
-          <div className="task-counts">
+          <div className="task-counts" style={{ alignSelf: 'flex-end' }}>
             {activeCount} active &middot; {completedCount} completed
           </div>
         </div>

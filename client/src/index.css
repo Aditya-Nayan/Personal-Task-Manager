@@ -311,6 +311,11 @@ input:focus, textarea:focus {
   gap: var(--spacing-sm);
 }
 
+.search-input {
+  width: 100%;
+  min-width: 250px;
+}
+
 .btn-filter {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid transparent;
