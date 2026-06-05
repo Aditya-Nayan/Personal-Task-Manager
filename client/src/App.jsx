@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Trash2, Edit2 } from 'lucide-react';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -62,6 +63,36 @@ function App() {
       setFormError(err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleComplete = async (id, currentStatus) => {
+    try {
+      const res = await fetch(`/api/tasks/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ completed: currentStatus === 1 ? 0 : 1 })
+      });
+      if (!res.ok) throw new Error('Failed to update task');
+      const data = await res.json();
+      setTasks(tasks.map(t => t.id === id ? data.task : t));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to update task status');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Delete this task? This cannot be undone.')) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to delete task');
+      setTasks(tasks.filter(t => t.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert('Failed to delete task');
     }
   };
 
@@ -133,8 +164,26 @@ function App() {
         {!loading && !error && tasks.length > 0 && (
           <div className="task-list">
             {tasks.map(task => (
-              <div key={task.id} className="task-card">
-                <div className="task-title">{task.title}</div>
+              <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''}`}>
+                <div className="task-header">
+                  <div className="flex-row">
+                    <input 
+                      type="checkbox" 
+                      className="checkbox"
+                      checked={task.completed === 1}
+                      onChange={() => handleToggleComplete(task.id, task.completed)}
+                    />
+                    <div className="task-title">{task.title}</div>
+                  </div>
+                  <div className="task-actions">
+                    <button className="btn-icon">
+                      <Edit2 size={16} />
+                    </button>
+                    <button className="btn-icon delete" onClick={() => handleDelete(task.id)}>
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                </div>
                 {task.description && <div className="task-desc">{task.description}</div>}
                 <div className="task-meta">
                   {task.due_date && <span>Due: {new Date(task.due_date).toLocaleDateString()}</span>}
