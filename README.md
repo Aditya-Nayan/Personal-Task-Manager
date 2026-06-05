@@ -1,15 +1,17 @@
 # Personal Task Manager
+ 
+A full-stack, single-user task management application. It provides essential task functionalities such as creating, reading, updating, deleting, and drag-and-drop reordering, with SQLite persistence on the backend.
 
-**Exercise chosen:** Exercise 1 — Personal Task Manager  
-A full-stack, single-user task management application featuring a "Refined Brutalist" aesthetic. It provides essential task functionalities such as creating, reading, updating, deleting, and drag-and-drop reordering, with SQLite persistence on the backend.
+### Live Application (After Deployment)
+- **Frontend by Netlify**: App link - [https://comforting-dodol-e9f2df.netlify.app/]
+- **Backend by Render**: [https://personal-task-manager-1ivb.onrender.com/]
+- **API URL**: [https://personal-task-manager-1ivb.onrender.com/api/tasks]
+
+  ![Personal Task_Manager IMAGE](Task_Manager.png)
 
 ### Local Dev
 - Frontend: [http://localhost:5174](http://localhost:5173) (Local Dev)
 - Backend API: [http://localhost:3001/api/tasks](http://localhost:3001/api/tasks) (Local Dev)
-
-### Live Application (After Deployment)
-- Frontend:
-- Backend:
 
 ### Tech Stack
 - **React (Vite):** Fast, modern frontend framework and bundler for a snappy UI.
@@ -18,6 +20,8 @@ A full-stack, single-user task management application featuring a "Refined Bruta
 - **@dnd-kit/core & sortable:** Accessible and customizable drag-and-drop toolkit for list reordering.
 - **lucide-react:** Clean and consistent SVG icons for actions like Edit and Delete.
 - **uuid:** Generates unique identifiers for newly created tasks.
+
+ *"SQLite resets on server restart due to Render's ephemeral filesystem; would migrate to PostgreSQL for production"*
 
 ### How to Run Locally
 Ensure you have Node.js installed (v16+ recommended).
@@ -56,6 +60,8 @@ Ensure you have Node.js installed (v16+ recommended).
 
 *(Task shape: `{ id, title, description, due_date, completed, order_index, created_at, updated_at }`)*
 
+- **API URL**: [https://personal-task-manager-1ivb.onrender.com/api/tasks]
+
 ### Project Structure
 ```text
 .
@@ -76,7 +82,8 @@ Ensure you have Node.js installed (v16+ recommended).
 
 ### Next Steps
 If given more time, the following features would be built next:
-1. **Authentication:** Adding JWT-based user authentication to support multiple users.
-2. **Categories/Tags:** Allowing tasks to be categorized by custom tags or projects.
-3. **Pagination/Virtualization:** Implementing infinite scrolling for the task list to optimize performance with a large number of tasks.
-4. **Automated Tests:** Adding Jest/Supertest for backend unit testing, and React Testing Library for frontend component testing.
+1. **New Database:** Plan to migrate from *SQLite* to *PostgreSQL* for persistent storage in production.
+2. **Authentication:** Adding JWT-based user authentication to support multiple users.
+3. **Categories/Tags:** Allowing tasks to be categorized by custom tags or projects.
+4. **Pagination/Virtualization:** Implementing infinite scrolling for the task list to optimize performance with a large number of tasks.
+5. **Automated Tests:** Adding Jest/Supertest for backend unit testing, and React Testing Library for frontend component testing.
