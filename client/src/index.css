@@ -158,7 +158,35 @@ input:focus, textarea:focus {
   color: var(--text-primary);
 }
 
-/* Task Card */
+.form-group {
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.form-group label {
+  font-family: var(--font-heading-sc);
+  color: var(--text-secondary);
+}
+
+.form-control {
+  padding: var(--spacing-sm);
+  font-size: 1rem;
+}
+
+.form-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  margin-top: var(--spacing-xs);
+}
+
+.add-task-panel {
+  background-color: var(--surface-color);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  border: 1px solid var(--border-color);
+}
 .task-card {
   background-color: var(--surface-color);
   border-left: 4px solid var(--border-color);

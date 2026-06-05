@@ -5,6 +5,13 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Form state
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -25,6 +32,39 @@ function App() {
     }
   };
 
+  const handleAddTask = async (e) => {
+    e.preventDefault();
+    if (!title.trim()) {
+      setFormError('Title is required');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setFormError('');
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, due_date: dueDate })
+      });
+      
+      if (!res.ok) throw new Error('Failed to create task');
+      
+      const data = await res.json();
+      setTasks([data.task, ...tasks]);
+      
+      // Reset form
+      setTitle('');
+      setDescription('');
+      setDueDate('');
+    } catch (err) {
+      console.error(err);
+      setFormError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="container">
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
@@ -33,6 +73,55 @@ function App() {
       </header>
 
       <main>
+        <div className="add-task-panel">
+          <h2>Add New Task</h2>
+          <form onSubmit={handleAddTask} className="flex-col">
+            <div className="form-group">
+              <label htmlFor="title">Task Title *</label>
+              <input 
+                id="title"
+                type="text" 
+                className="form-control" 
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="What needs to be done?"
+              />
+              {formError && <div className="form-error">{formError}</div>}
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="description">Description</label>
+              <textarea 
+                id="description"
+                className="form-control" 
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                rows="2"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="dueDate">Due Date</label>
+              <input 
+                id="dueDate"
+                type="date" 
+                className="form-control" 
+                value={dueDate}
+                onChange={e => setDueDate(e.target.value)}
+              />
+            </div>
+
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              style={{ alignSelf: 'flex-start', marginTop: 'var(--spacing-md)' }}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Adding...' : 'Add Task'}
+            </button>
+          </form>
+        </div>
+
         {loading && <p style={{ color: 'var(--text-secondary)' }}>Loading tasks...</p>}
         
         {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
