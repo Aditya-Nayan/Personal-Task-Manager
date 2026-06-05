@@ -130,6 +130,31 @@ app.delete('/api/tasks/:id', (req, res) => {
   }
 });
 
+app.put('/api/tasks/reorder', (req, res) => {
+  try {
+    const { orderedIds } = req.body;
+    
+    if (!Array.isArray(orderedIds)) {
+      return res.status(400).json({ error: 'orderedIds must be an array' });
+    }
+
+    const stmt = db.prepare('UPDATE tasks SET order_index = ? WHERE id = ?');
+    
+    const updateTransaction = db.transaction((ids) => {
+      for (let i = 0; i < ids.length; i++) {
+        stmt.run(i, ids[i]);
+      }
+    });
+
+    updateTransaction(orderedIds);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to reorder tasks' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
