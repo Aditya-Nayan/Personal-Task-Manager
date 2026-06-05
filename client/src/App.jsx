@@ -20,6 +20,9 @@ function App() {
   const [editDueDate, setEditDueDate] = useState('');
   const [editError, setEditError] = useState('');
 
+  // Filter state
+  const [filter, setFilter] = useState('All'); // 'All', 'Active', 'Completed'
+
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -136,6 +139,15 @@ function App() {
     }
   };
 
+  const filteredTasks = tasks.filter(task => {
+    if (filter === 'Active') return task.completed === 0;
+    if (filter === 'Completed') return task.completed === 1;
+    return true;
+  });
+
+  const activeCount = tasks.filter(t => t.completed === 0).length;
+  const completedCount = tasks.filter(t => t.completed === 1).length;
+
   return (
     <div className="container">
       <header style={{ marginBottom: 'var(--spacing-xl)' }}>
@@ -193,17 +205,43 @@ function App() {
           </form>
         </div>
 
+        <div className="filter-bar">
+          <div className="filter-buttons">
+            <button 
+              className={`btn-filter ${filter === 'All' ? 'active' : ''}`}
+              onClick={() => setFilter('All')}
+            >
+              All
+            </button>
+            <button 
+              className={`btn-filter ${filter === 'Active' ? 'active' : ''}`}
+              onClick={() => setFilter('Active')}
+            >
+              Active
+            </button>
+            <button 
+              className={`btn-filter ${filter === 'Completed' ? 'active' : ''}`}
+              onClick={() => setFilter('Completed')}
+            >
+              Completed
+            </button>
+          </div>
+          <div className="task-counts">
+            {activeCount} active &middot; {completedCount} completed
+          </div>
+        </div>
+
         {loading && <p style={{ color: 'var(--text-secondary)' }}>Loading tasks...</p>}
         
         {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
         
-        {!loading && !error && tasks.length === 0 && (
+        {!loading && !error && filteredTasks.length === 0 && (
           <p style={{ color: 'var(--text-secondary)' }}>No tasks found.</p>
         )}
 
-        {!loading && !error && tasks.length > 0 && (
+        {!loading && !error && filteredTasks.length > 0 && (
           <div className="task-list">
-            {tasks.map(task => (
+            {filteredTasks.map(task => (
               <div key={task.id} className={`task-card ${task.completed ? 'completed' : ''}`}>
                 {editingTaskId === task.id ? (
                   <div className="flex-col gap-sm">
