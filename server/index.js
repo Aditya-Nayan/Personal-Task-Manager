@@ -67,6 +67,69 @@ app.post('/api/tasks', (req, res) => {
   }
 });
 
+app.put('/api/tasks/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+    
+    // Validate if task exists
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    const updatableFields = ['title', 'description', 'due_date', 'completed', 'order_index'];
+    const fieldsToUpdate = [];
+    const values = [];
+
+    updatableFields.forEach(field => {
+      if (updates[field] !== undefined) {
+        fieldsToUpdate.push(`${field} = ?`);
+        values.push(updates[field]);
+      }
+    });
+
+    if (fieldsToUpdate.length === 0) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    fieldsToUpdate.push('updated_at = ?');
+    values.push(new Date().toISOString());
+    values.push(id); // for the WHERE clause
+
+    const stmt = db.prepare(`
+      UPDATE tasks 
+      SET ${fieldsToUpdate.join(', ')} 
+      WHERE id = ?
+    `);
+
+    stmt.run(...values);
+
+    const updatedTask = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
+    res.json({ task: updatedTask });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update task' });
+  }
+});
+
+app.delete('/api/tasks/:id', (req, res) => {
+  try {
+    const { id } = req.params;
+    const stmt = db.prepare('DELETE FROM tasks WHERE id = ?');
+    const info = stmt.run(id);
+
+    if (info.changes === 0) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete task' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
