@@ -14,7 +14,7 @@
   /* Fonts */
   --font-heading: 'Anton', sans-serif;
   --font-heading-alt: 'Antonio', sans-serif;
-  --font-heading-sc: 'Anton SC', sans-serif;
+  --font-heading-sc: 'Anton', sans-serif;
   --font-subheading: 'Tangerine', cursive;
   --font-mono: 'JetBrains Mono', monospace;
   --font-body: 'DM Sans', sans-serif;
@@ -66,6 +66,7 @@ h3 {
 
 .subheading {
   font-family: var(--font-subheading);
+  font-weight: bold;
   font-size: 2rem;
   color: var(--accent-secondary);
   line-height: 1;
@@ -183,6 +184,7 @@ input:focus, textarea:focus {
 
 .add-task-panel {
   background-color: var(--surface-color);
+  color: var(--accent-color);
   padding: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
   border: 1px solid var(--border-color);

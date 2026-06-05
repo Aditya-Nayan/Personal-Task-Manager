@@ -214,7 +214,7 @@ function App() {
   return (
     <div className="container">
       <header style={{ marginBottom: 'var(--spacing-xl)', display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>
-        <img src="/logo.svg" alt="Task Manager Logo" style={{ height: '80px', width: 'auto', background: 'transparent' }} />
+        <img src="/logo.svg" alt="Task Manager Logo" style={{ height: '120px', width: '200px', background: 'transparent' }} />
         <div>
           <h1 style={{ marginBottom: 0 }}>Task Manager</h1>
           <div className="subheading">Organize your thoughts</div>
