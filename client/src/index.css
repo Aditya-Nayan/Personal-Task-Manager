@@ -157,3 +157,36 @@ input:focus, textarea:focus {
 .btn-ghost:hover {
   color: var(--text-primary);
 }
+
+/* Task Card */
+.task-card {
+  background-color: var(--surface-color);
+  border-left: 4px solid var(--border-color);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  transition: all 0.2s ease;
+}
+
+.task-card:hover {
+  background-color: var(--surface-hover);
+  border-left-color: var(--accent-color);
+}
+
+.task-title {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  margin-bottom: var(--spacing-xs);
+}
+
+.task-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-sm);
+}
+
+.task-meta {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: var(--spacing-md);
+}
