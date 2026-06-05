@@ -16,6 +16,10 @@ import {
 } from '@dnd-kit/sortable';
 import { SortableTask } from './components/SortableTask';
 
+const API_BASE = import.meta.env.PROD 
+  ? 'https://personal-task-manager-1ivb.onrender.com/api' 
+  : '/api';
+
 function App() {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +57,7 @@ function App() {
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/tasks');
+      const res = await fetch(`${API_BASE}/tasks`);
       if (!res.ok) throw new Error('Failed to fetch tasks');
       const data = await res.json();
       setTasks(data.tasks);
@@ -76,7 +80,7 @@ function App() {
     try {
       setIsSubmitting(true);
       setFormError('');
-      const res = await fetch('/api/tasks', {
+      const res = await fetch(`${API_BASE}/tasks`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, description, due_date: dueDate })
@@ -101,7 +105,7 @@ function App() {
 
   const handleToggleComplete = async (id, currentStatus) => {
     try {
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ completed: currentStatus === 1 ? 0 : 1 })
@@ -120,7 +124,7 @@ function App() {
       return;
     }
     try {
-      const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/tasks/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete task');
       setTasks(tasks.filter(t => t.id !== id));
     } catch (err) {
@@ -140,7 +144,7 @@ function App() {
         
         // Persist to server
         const orderedIds = newArray.map(item => item.id);
-        fetch('/api/tasks/reorder', {
+        fetch(`${API_BASE}/tasks/reorder`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ orderedIds })
@@ -169,7 +173,7 @@ function App() {
       return;
     }
     try {
-      const res = await fetch(`/api/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/tasks/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: editTitle, description: editDescription, due_date: editDueDate })
