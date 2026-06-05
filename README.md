@@ -4,7 +4,7 @@
 A full-stack, single-user task management application featuring a "Refined Brutalist" aesthetic. It provides essential task functionalities such as creating, reading, updating, deleting, and drag-and-drop reordering, with SQLite persistence on the backend.
 
 ### Live Demo
-- Frontend: [http://localhost:5173](http://localhost:5173) (Local Dev)
+- Frontend: [http://localhost:5174](http://localhost:5173) (Local Dev)
 - Backend API: [http://localhost:3001/api/tasks](http://localhost:3001/api/tasks) (Local Dev)
 
 ### Tech Stack
